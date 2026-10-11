@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NEXORA AI</title>
+<meta name="description" content="Assistente pessoal de IA com voz, memória e ferramentas.">
+<meta name="theme-color" content="#05070D">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<div class="app">
+  <aside class="nav glass" id="nav">
+    <div class="logo"><span class="dot"></span> NEXORA AI</div>
+    <button data-page="home">🏠 <span>Início</span></button>
+    <button data-page="chats">💬 <span>Conversas</span></button>
+    <button data-page="memory">🧠 <span>Memória</span></button>
+    <button data-page="face">🙂 <span>Rosto</span></button>
+    <button data-page="tools">🧰 <span>Ferramentas</span></button>
+    <button data-page="search">🔎 <span>Pesquisa</span></button>
+    <button data-page="settings">⚙️ <span>Config.</span></button>
+  </aside>
+  <main>
+    <header class="top glass">
+      <div id="greeting">Olá</div>
+      <div class="chips">
+        <span class="chip" id="chipNet">● rede</span>
+        <span class="chip" id="chipAI">● IA</span>
+        <span class="chip" id="chipMic">🎤 off</span>
+        <span class="chip" id="chipCam">📷 off</span>
+        <button id="btnInstall" hidden>Instalar</button>
+      </div>
+    </header>
+
+    <section id="page-home" class="page">
+      <div id="orb" class="orb idle" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div id="orbState" class="muted center">Pronta.</div>
+      <div id="log" class="log glass" aria-live="polite"></div>
+      <div class="composer glass">
+        <textarea id="input" rows="2" placeholder="Digite ou use o microfone. Ex.: Lembre-se de que meu projeto se chama Redcraft."></textarea>
+        <div class="row">
+          <button id="btnMic" title="Falar">🎤</button>
+          <button id="btnStopSpeak" title="Parar a fala">🔇</button>
+          <button id="btnStopGen" title="Cancelar resposta" hidden>⏹</button>
+          <button id="btnNew" title="Nova conversa">＋</button>
+          <button id="btnSend" class="primary">Enviar</button>
+        </div>
+        <div id="micNote" class="muted small"></div>
+      </div>
+      <div class="quick">
+        <button data-go="memory">🧠 Memória</button><button data-go="face">🙂 Rosto</button>
+        <button data-go="tools">🧰 Ferramentas</button><button data-go="search">🔎 Web</button>
+      </div>
+    </section>
+
+    <section id="page-chats" class="page" hidden><h2>Conversas</h2><div id="chatList" class="list"></div></section>
+
+    <section id="page-memory" class="page" hidden>
+      <h2>Memória</h2>
+      <p class="muted small">Memórias ficam <b>neste navegador</b> (IndexedDB). Não há sincronização entre dispositivos. Ao conversar, as memórias são enviadas ao provedor de IA como contexto.</p>
+      <div class="row"><input id="memNew" placeholder="Nova memória"><button id="memAdd" class="primary">Salvar</button></div>
+      <input id="memSearch" placeholder="Pesquisar memórias">
+      <div id="memList" class="list"></div>
+      <div class="row"><button id="memExport">Exportar tudo (JSON)</button><button id="memClear" class="danger">Apagar histórico e memórias</button></div>
+    </section>
+
+    <section id="page-face" class="page" hidden>
+      <h2>Reconhecimento facial</h2>
+      <p class="muted small">Processamento 100% local. Guardamos apenas um vetor numérico, nunca fotos. <b>Não use como autenticação segura.</b> A câmera só liga quando você clica.</p>
+      <div class="cam glass"><video id="video" playsinline muted></video><canvas id="overlay"></canvas><div id="faceState" class="badge">Câmera desligada</div></div>
+      <div class="row"><button id="camOn" class="primary">Ligar câmera</button><button id="camOff">Desligar</button></div>
+      <div class="row"><input id="faceName" placeholder="Nome ou apelido"><button id="faceEnroll">Cadastrar meu rosto</button></div>
+      <div class="row"><button id="faceRecog">Iniciar reconhecimento</button><button id="faceDel" class="danger">Excluir perfil facial</button></div>
+      <div id="faceMsg" class="muted small"></div>
+    </section>
+
+    <section id="page-tools" class="page" hidden>
+      <h2>Ferramentas</h2>
+      <div class="grid">
+        <div class="glass pad"><h3>📝 Notas</h3><textarea id="noteText" rows="3" placeholder="Escreva uma nota"></textarea>
+          <div class="row"><button id="noteAdd" class="primary">Salvar nota</button></div><div id="noteList" class="list"></div></div>
+        <div class="glass pad"><h3>✅ Tarefas e lembretes</h3>
+          <div class="row"><input id="taskText" placeholder="Tarefa"><input id="taskDue" type="datetime-local"></div>
+          <div class="row"><button id="taskAdd" class="primary">Adicionar</button></div>
+          <p class="muted small">Lembretes disparam apenas com o app aberto (um PWA sem push não acorda em segundo plano).</p><div id="taskList" class="list"></div></div>
+        <div class="glass pad"><h3>📂 Arquivo de texto</h3><input id="fileIn" type="file" accept=".txt,.md,.csv,.json,text/*">
+          <pre id="filePrev" class="prev"></pre><div class="row"><button id="fileSum">Resumir com IA</button><button id="fileCopy">Copiar</button></div>
+          <p class="muted small">Só o arquivo que você escolher é lido. Resumir envia o texto ao provedor de IA.</p></div>
+        <div class="glass pad"><h3>📄 Documento simples</h3><input id="docTitle" placeholder="Título"><textarea id="docBody" rows="4" placeholder="Conteúdo (Markdown)"></textarea>
+          <div class="row"><button id="docMd">Baixar .md</button><button id="docTxt">Baixar .txt</button></div></div>
+      </div>
+      <p class="muted small">Limitação: um PWA não acessa terminal, processos, apps instalados nem configurações do Windows.</p>
+    </section>
+
+    <section id="page-search" class="page" hidden>
+      <h2>Pesquisa web</h2>
+      <div class="row"><input id="searchQ" placeholder="Pesquisar na internet"><button id="searchGo" class="primary">Buscar</button></div>
+      <div id="searchMsg" class="muted small"></div><div id="searchRes" class="list"></div>
+      <h3>Histórico</h3><div id="searchHist" class="list"></div>
+    </section>
+
+    <section id="page-settings" class="page" hidden>
+      <h2>Configurações</h2>
+      <div class="grid">
+        <div class="glass pad"><h3>IA</h3><div>Provedor: <b>Anthropic (Claude)</b></div><div id="setStatus" class="muted small"></div>
+          <label>Modelo <select id="setModel"></select></label>
+          <label>Código de acesso (se o servidor exigir) <input id="setCode" type="password" autocomplete="off"></label>
+          <p class="muted small">Chaves de API ficam só no servidor (.env). Aqui não há campo para elas.</p></div>
+        <div class="glass pad"><h3>Voz</h3>
+          <label>Idioma <select id="setLang"><option value="pt-BR">Português (Brasil)</option><option value="en-US">English (US)</option></select></label>
+          <label>Voz <select id="setVoice"></select></label>
+          <label>Velocidade <input id="setRate" type="range" min="0.6" max="1.6" step="0.1"></label>
+          <label>Volume <input id="setVol" type="range" min="0" max="1" step="0.1"></label>
+          <label><input id="setSpeak" type="checkbox"> Ler respostas em voz alta</label>
+          <label><input id="setWake" type="checkbox"> Palavra de ativação “NEXORA” (escuta contínua com o app aberto)</label>
+          <button id="voiceTest">Testar voz</button></div>
+        <div class="glass pad"><h3>Perfis</h3><div id="profList" class="list"></div>
+          <div class="row"><input id="profName" placeholder="Novo perfil"><button id="profAdd">Criar</button></div>
+          <p class="muted small">Cada perfil tem conversas, memórias e notas separadas neste navegador. O perfil “Convidado” serve para rostos desconhecidos.</p></div>
+        <div class="glass pad"><h3>Aparência e avisos</h3>
+          <label>Tema <select id="setTheme"><option value="dark">Escuro</option><option value="contrast">Alto contraste</option></select></label>
+          <button id="setNotif">Ativar notificações</button>
+          <h3>Privacidade</h3><p class="muted small">Dados ficam neste dispositivo. Texto das conversas, memórias e buscas vão ao servidor/provedor só ao usar IA e pesquisa. Veja docs/PRIVACIDADE.md.</p>
+          <div class="row"><button id="expAll">Exportar dados</button><button id="delAll" class="danger">Excluir tudo</button></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

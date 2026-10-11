@@ -1,0 +1,14 @@
+{
+  "name": "nexora-ai-pwa",
+  "version": "1.0.0",
+  "description": "NEXORA AI - assistente pessoal em PWA (sem dependências de runtime)",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "test": "node --test",
+    "setup:face": "sh scripts/download-face-models.sh",
+    "icons": "python3 scripts/make-icons.py"
+  }
+}
